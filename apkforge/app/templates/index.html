@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>APKForge</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <h1>APKForge</h1>
+        <p>Reverse. Analyze. Transform. Rebuild.</p>
+      </div>
+      <span id="status" class="status">Idle</span>
+    </header>
+
+    <section class="panel">
+      <form id="uploadForm">
+        <label for="apkInput">APK file</label>
+        <div class="row">
+          <input id="apkInput" name="apk" type="file" accept=".apk,application/vnd.android.package-archive" required>
+          <button type="submit">Start Analysis</button>
+          <button id="modifyButton" type="button" disabled>Modify, Rebuild, Sign</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <h2>Analysis Summary</h2>
+        <div id="summary" class="summary empty">No run yet.</div>
+      </div>
+      <div class="panel">
+        <h2>Artifacts</h2>
+        <div id="artifacts" class="artifacts empty">Generated files will appear here.</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Workflow Log</h2>
+      <pre id="logs">Waiting for an APK...</pre>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
+

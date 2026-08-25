@@ -1,0 +1,116 @@
+# ==========================================================================
+# APKForge / APKmess — Python (Flask) project
+# Keep build artifacts, runtime data, and secrets out of the repo.
+# ==========================================================================
+
+# --------------------------------------------------------------------------
+# Python
+# --------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+.eggs/
+build/
+dist/
+develop-eggs/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.manifest
+*.spec
+
+# --------------------------------------------------------------------------
+# Tests / coverage / linters
+# --------------------------------------------------------------------------
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.pytype/
+.ruff_cache/
+.hypothesis/
+.cache/
+pytestdebug.log
+
+# --------------------------------------------------------------------------
+# Virtual environments
+# --------------------------------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# --------------------------------------------------------------------------
+# IDE / editor / OS noise
+# --------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.iml
+
+# --------------------------------------------------------------------------
+# Flask / app runtime
+# --------------------------------------------------------------------------
+instance/
+.flaskenv
+
+# --------------------------------------------------------------------------
+# Secrets & credentials — NEVER commit these
+# --------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+!*.gitkeep
+
+# --------------------------------------------------------------------------
+# APK build & analysis artifacts.
+# Uploaded APKs, extracted/decompiled content, reports, and logs can contain
+# third-party, copyrighted, or malicious data — keep them out of version
+# control. Builds/keystores under output/ are also regenerated locally.
+# --------------------------------------------------------------------------
+workspace/
+output/
+*.apk
+*.aab
+*.apks
+*.dex
+*.smali
+*.obb
+
+# --------------------------------------------------------------------------
+# Logs
+# --------------------------------------------------------------------------
+logs/
+*.log
+
+# --------------------------------------------------------------------------
+# Generated reports / docs
+# --------------------------------------------------------------------------
+reports/
+
+# --------------------------------------------------------------------------
+# Node / frontend (if added later)
+# --------------------------------------------------------------------------
+node_modules/
+bower_components/
+
