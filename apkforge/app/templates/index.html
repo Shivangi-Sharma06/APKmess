@@ -3,48 +3,147 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>APKForge</title>
+  <title>MessAPK</title>
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
   <main class="shell">
     <header class="topbar">
       <div>
-        <h1>APKForge</h1>
-        <p>Reverse. Analyze. Transform. Rebuild.</p>
+        <h1>MessAPK</h1>
+        <p>Educational APK reverse-engineering, analysis, editing, and rebuild platform.</p>
       </div>
       <span id="status" class="status">Idle</span>
     </header>
 
-    <section class="panel">
+    <section class="panel upload-panel">
       <form id="uploadForm">
         <label for="apkInput">APK file</label>
         <div class="row">
           <input id="apkInput" name="apk" type="file" accept=".apk,application/vnd.android.package-archive" required>
-          <button type="submit">Start Analysis</button>
-          <button id="modifyButton" type="button" disabled>Modify, Rebuild, Sign</button>
+          <button type="submit">Analyze</button>
+          <button id="saveButton" type="button" disabled>Save Edit</button>
+          <button id="modifyButton" type="button" disabled>Rebuild, Align, Sign</button>
         </div>
       </form>
+      <p class="notice">Use only APKs you own or are authorized to modify. Edits are limited to decoded text artifacts and tracked with diffs.</p>
     </section>
 
-    <section class="grid">
-      <div class="panel">
-        <h2>Analysis Summary</h2>
-        <div id="summary" class="summary empty">No run yet.</div>
-      </div>
-      <div class="panel">
-        <h2>Artifacts</h2>
-        <div id="artifacts" class="artifacts empty">Generated files will appear here.</div>
-      </div>
+    <nav class="workflow" aria-label="Primary workflow">
+      <span>Upload</span>
+      <span>Analyze</span>
+      <span>Understand</span>
+      <span>Modify</span>
+      <span>Review Diff</span>
+      <span>Temporary Test Build</span>
+      <span>Test</span>
+      <span>Final Export Build</span>
+    </nav>
+
+    <section class="panel">
+      <h2>Metadata Dashboard</h2>
+      <div id="dashboard" class="dashboard empty">Upload an APK to begin.</div>
+    </section>
+
+    <section class="workbench">
+      <aside class="panel tree-panel">
+        <div class="section-head">
+          <h2>APK Tree</h2>
+          <input id="treeSearch" type="search" placeholder="Search tree">
+        </div>
+        <div id="tree" class="tree empty">No analyzed APK.</div>
+      </aside>
+
+      <section class="panel viewer-panel">
+        <div class="tabs">
+          <button class="tab active" data-tab="manifest" type="button">Manifest</button>
+          <button class="tab" data-tab="viewer" type="button">Code/File</button>
+          <button class="tab" data-tab="ai" type="button">AI Edit</button>
+          <button class="tab" data-tab="diff" type="button">Diffs</button>
+          <button class="tab" data-tab="test" type="button">Test Lab</button>
+          <button class="tab" data-tab="logs" type="button">Logs</button>
+        </div>
+
+        <div id="manifestTab" class="tab-page active">
+          <h2>Manifest Explorer</h2>
+          <div id="manifestExplorer" class="manifest-grid empty">Manifest details appear after analysis.</div>
+          <h3>Educational Notes</h3>
+          <div id="education" class="notes"></div>
+        </div>
+
+        <div id="viewerTab" class="tab-page">
+          <div class="section-head">
+            <h2 id="viewerTitle">Manual Edit</h2>
+            <span id="viewerMeta" class="muted"></span>
+          </div>
+          <textarea id="codeViewer" spellcheck="false" readonly>Select a text file from the tree.</textarea>
+        </div>
+
+        <div id="aiTab" class="tab-page">
+          <h2>AI-Assisted Edit</h2>
+          <div class="ai-grid">
+            <section class="subpanel">
+              <label for="aiRequest">Authorized change request</label>
+              <textarea id="aiRequest" class="short-editor" spellcheck="true" placeholder="Change the application name to MyApp."></textarea>
+              <div class="row wrap">
+                <button id="aiContextButton" type="button" disabled>Inspect Context</button>
+                <button id="aiProposeButton" type="button" disabled>Propose Changes</button>
+                <button id="aiApplyButton" type="button" disabled>Approve & Apply</button>
+              </div>
+            </section>
+            <section class="subpanel">
+              <h3>Workspace Context</h3>
+              <pre id="aiContext">AI tools inspect the analyzed workspace after upload.</pre>
+            </section>
+          </div>
+          <h3>Proposed Changes</h3>
+          <pre id="aiProposal">No pending proposal.</pre>
+        </div>
+
+        <div id="diffTab" class="tab-page">
+          <h2>Before/After Diff</h2>
+          <pre id="diffs">No modifications yet.</pre>
+        </div>
+
+        <div id="testTab" class="tab-page">
+          <div class="section-head">
+            <h2>APK Test Lab</h2>
+            <span class="muted">Temporary Test Build only</span>
+          </div>
+          <div class="row wrap">
+            <button id="testBuildButton" type="button" disabled>Build Test APK</button>
+            <button class="test-action" data-action="launch" type="button" disabled>Launch App</button>
+            <button class="test-action" data-action="restart-emulator" type="button" disabled>Restart Emulator</button>
+            <button class="test-action" data-action="reset-app" type="button" disabled>Reset App</button>
+            <button class="test-action" data-action="clear-data" type="button" disabled>Clear Data</button>
+            <button class="test-action" data-action="stop-app" type="button" disabled>Stop App</button>
+            <button class="test-action" data-action="reinstall" type="button" disabled>Reinstall Latest</button>
+            <button class="test-action" data-action="screenshot" type="button" disabled>Screenshot</button>
+          </div>
+          <div class="test-grid">
+            <section class="emulator-view" id="emulatorView">Isolated emulator stream unavailable.</section>
+            <section class="subpanel">
+              <h3>Runtime Logs</h3>
+              <input id="runtimeSearch" type="search" placeholder="Search runtime logs">
+              <pre id="runtimeLogs">Runtime observations appear here when an isolated emulator backend is configured.</pre>
+            </section>
+          </div>
+          <pre id="testStatus">Runtime testing is optional and requires isolated Android emulator infrastructure.</pre>
+        </div>
+
+        <div id="logsTab" class="tab-page">
+          <h2>Workflow Log</h2>
+          <pre id="logs">Waiting for an APK...</pre>
+        </div>
+      </section>
     </section>
 
     <section class="panel">
-      <h2>Workflow Log</h2>
-      <pre id="logs">Waiting for an APK...</pre>
+      <h2>Artifacts</h2>
+      <div id="artifacts" class="artifacts empty">Generated files will appear here.</div>
     </section>
   </main>
 
   <script src="/static/app.js"></script>
 </body>
 </html>
-

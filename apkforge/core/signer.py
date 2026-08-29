@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from apkforge.tools import apksigner
+from apkforge.tools import uber_apk_signer
 from apkforge.tools.runner import CommandResult, run_command
 
 
@@ -48,3 +49,6 @@ def sign_apk(unsigned_apk: Path, signed_apk: Path, keystore: Path, log_file: Pat
 def verify_signature(apk_path: Path, log_file: Path) -> CommandResult:
     return apksigner.verify(apk_path, log_file)
 
+
+def sign_with_uber_apk_signer(apk_path: Path, output_dir: Path, jar_path: Path | None, log_file: Path) -> CommandResult:
+    return uber_apk_signer.sign(apk_path, output_dir, jar_path, log_file)

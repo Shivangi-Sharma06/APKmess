@@ -1,85 +1,92 @@
-# APKForge
+# MessAPK
 
-**Reverse. Analyze. Transform. Rebuild.**
+Educational APK reverse-engineering, analysis, editing, and rebuild platform.
 
-APKForge is a local cybersecurity research demo tool for working with Android APKs in a controlled environment. It validates an uploaded APK, extracts archive contents, optionally runs established reverse-engineering tools, generates a structured static-analysis report, and exposes a controlled demo modification/rebuild/sign workflow.
+MessAPK is a local web app for authorized APK research. It uploads and validates APKs, extracts them, runs Apktool and JADX when available, presents metadata and semantic APK structure, allows controlled edits to decoded text artifacts, tracks diffs, rebuilds with Apktool, aligns, signs, verifies, and exposes downloadable artifacts.
 
-This initial version intentionally uses a simple Flask page and modular Python backend.
+## Current Deliverables
 
-## What Works
+- Upload and validate APK files
+- Per-run isolated workspaces under `workspace/<run_id>/`
+- APK file metadata: filename, size, SHA-256, DEX count, resources, native libraries, architecture indicators, signing entries
+- Apktool decode for manifest/resources/smali when installed
+- JADX Java-like reconstructed source when installed
+- Clear partial status when external tools are missing
+- Metadata dashboard
+- Semantic Manifest Explorer
+- Interactive APK tree explorer
+- Code/file viewer for decoded, decompiled, extracted, analysis, modified, and log artifacts
+- Controlled text editing for decoded Apktool files only
+- Modification tracking and before/after unified diffs
+- Apktool rebuild
+- Zipalign step
+- Uber APK Signer support, with apksigner fallback
+- Signature verification
+- Download links for generated artifacts
 
-- APK upload and per-run isolated workspaces under `workspace/<run_id>/`
-- APK validation using ZIP structure checks
-- Safe APK archive extraction
-- Optional Apktool decode into resources and Smali, when `apktool` is installed
-- Optional JADX decompilation into Java-like reconstructed code, when `jadx` is installed
-- JSON static analysis report with DEX files, native libraries, URLs/domains, permissions/components when a decoded manifest is available, and basic security indicators
-- Controlled demo modification that adds a harmless marker asset to decoded researcher-owned/demo APKs
-- Optional Apktool rebuild and apksigner signing/verification, when Android build tools are installed
-- Command logging with exit codes under each run's `logs/workflow.log`
+MessAPK does not claim to recover original source exactly. JADX output is reconstructed Java-like code; Smali and decoded resources remain the rebuild-oriented representation.
 
-Java-like output is labeled as reconstructed/decompiled code because APK reverse engineering cannot guarantee recovery of original source.
+## Safety Boundary
+
+Use MessAPK only with APKs you own or are explicitly authorized to modify. The app does not provide malware, hidden backdoor, credential theft, OTP interception, spyware, persistence, or data exfiltration templates.
 
 ## Setup
 
 ```bash
+cd /home/shivangi/projects/APKmess
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Optional external tools for the full workflow:
-
-- `apktool`
-- `jadx`
-- Android SDK build tools with `apksigner`
-- JDK `keytool`
-- `adb` for future device installation workflows
-
-Without those tools, the demo still validates, extracts, scans, logs skipped tools, and produces a report.
-
 ## Run
 
 ```bash
+source .venv/bin/activate
 flask --app apkforge.app.server run --host 127.0.0.1 --port 5000
 ```
 
-Open `http://127.0.0.1:5000`, upload an APK, and start analysis. Rebuild/sign controls become available after analysis when decoded Apktool output exists.
+Open:
+
+```text
+http://127.0.0.1:5000
+```
 
 ## Test
 
 ```bash
-python -m pytest
+source .venv/bin/activate
+python -m pytest -q
 ```
 
-## Project Layout
+## External Tool PATH
 
-```text
-apkforge/
-├── app/
-│   ├── server.py
-│   ├── routes.py
-│   ├── static/
-│   └── templates/
-├── core/
-│   ├── analyzer.py
-│   ├── builder.py
-│   ├── decompiler.py
-│   ├── extractor.py
-│   ├── modifier.py
-│   ├── signer.py
-│   └── validator.py
-├── tools/
-│   ├── adb.py
-│   ├── apksigner.py
-│   ├── apktool.py
-│   ├── jadx.py
-│   └── runner.py
-├── workspace/
-├── output/
-└── tests/
+Check what is installed:
+
+```bash
+for t in apktool jadx zipalign uber-apk-signer apksigner keytool adb; do
+  printf '%-16s ' "$t"
+  command -v "$t" || echo "not found"
+done
 ```
 
-## Research Boundary
+Minimum useful demo:
 
-The modification layer is deliberately limited to harmless demo behavior. Do not use APKForge to modify third-party applications or add credential theft, OTP interception, spyware, persistence, or data exfiltration behavior.
+- `apktool`
+- `jadx`
+
+Full rebuild/sign demo:
+
+- `apktool`
+- `zipalign`
+- `uber-apk-signer` or `apksigner`
+- `keytool`
+
+Android SDK tools are usually added with:
+
+```bash
+export ANDROID_HOME=$HOME/Android/Sdk
+export PATH=$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/35.0.0:$ANDROID_HOME/cmdline-tools/latest/bin
+```
+
+Add those lines to `~/.bashrc` once the SDK is installed.

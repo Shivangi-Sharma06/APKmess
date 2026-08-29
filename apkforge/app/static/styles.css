@@ -1,8 +1,8 @@
 :root {
   color-scheme: light;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #f6f7f9;
-  color: #1d2430;
+  background: #f5f6f8;
+  color: #18202d;
 }
 
 * {
@@ -14,9 +14,9 @@ body {
 }
 
 .shell {
-  width: min(1180px, calc(100vw - 32px));
+  width: min(1400px, calc(100vw - 28px));
   margin: 0 auto;
-  padding: 28px 0;
+  padding: 24px 0;
 }
 
 .topbar {
@@ -24,10 +24,13 @@ body {
   justify-content: space-between;
   gap: 20px;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
-h1, h2, p {
+h1,
+h2,
+h3,
+p {
   margin: 0;
 }
 
@@ -37,31 +40,59 @@ h1 {
 }
 
 h2 {
-  font-size: 17px;
-  margin-bottom: 14px;
+  font-size: 16px;
+  margin-bottom: 12px;
 }
 
-.topbar p {
-  color: #667085;
-  margin-top: 5px;
+h3 {
+  font-size: 14px;
+  margin: 14px 0 10px;
+}
+
+.topbar p,
+.notice,
+.muted {
+  color: #647084;
+}
+
+.notice {
+  margin-top: 10px;
+  font-size: 13px;
 }
 
 .status {
-  border: 1px solid #cfd6e4;
+  border: 1px solid #cbd3df;
   background: #fff;
   border-radius: 8px;
   padding: 8px 12px;
   min-width: 120px;
   text-align: center;
-  font-weight: 650;
+  font-weight: 700;
 }
 
 .panel {
   background: #fff;
-  border: 1px solid #d9dee8;
+  border: 1px solid #d9dee7;
   border-radius: 8px;
-  padding: 18px;
-  margin-bottom: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.workflow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0 0 14px;
+}
+
+.workflow span {
+  border: 1px solid #d9dee7;
+  border-radius: 8px;
+  background: #fff;
+  color: #344054;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 9px;
 }
 
 label {
@@ -70,19 +101,39 @@ label {
   margin-bottom: 8px;
 }
 
-.row {
+.row,
+.section-head,
+.tabs {
   display: flex;
-  gap: 10px;
   align-items: center;
+  gap: 10px;
+}
+
+.wrap {
   flex-wrap: wrap;
+}
+
+.section-head {
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+input[type="file"],
+input[type="search"] {
+  border: 1px solid #cbd3df;
+  border-radius: 8px;
+  min-height: 40px;
+  padding: 9px 10px;
 }
 
 input[type="file"] {
   flex: 1 1 320px;
-  border: 1px dashed #9aa7bb;
-  border-radius: 8px;
-  padding: 11px;
-  min-height: 44px;
+  border-style: dashed;
+}
+
+#runtimeSearch {
+  width: 100%;
+  margin-bottom: 10px;
 }
 
 button {
@@ -91,8 +142,8 @@ button {
   background: #0f766e;
   color: #fff;
   font-weight: 750;
-  min-height: 44px;
-  padding: 0 16px;
+  min-height: 40px;
+  padding: 0 14px;
   cursor: pointer;
 }
 
@@ -101,38 +152,188 @@ button:disabled {
   cursor: not-allowed;
 }
 
-.grid {
+.dashboard,
+.notes {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(280px, .65fr);
-  gap: 16px;
-}
-
-.summary {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
 .metric {
-  border: 1px solid #e2e7ef;
+  border: 1px solid #e1e6ee;
   border-radius: 8px;
   padding: 10px;
-  min-height: 68px;
+  min-height: 64px;
 }
 
 .metric b {
   display: block;
   font-size: 12px;
-  color: #667085;
+  color: #647084;
   margin-bottom: 5px;
+  text-transform: capitalize;
 }
 
 .metric span {
   overflow-wrap: anywhere;
 }
 
-.empty {
-  color: #667085;
+.workbench {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 14px;
+}
+
+.tree-panel,
+.viewer-panel {
+  min-height: 680px;
+}
+
+.tree {
+  height: 610px;
+  overflow: auto;
+  border: 1px solid #e1e6ee;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fbfcfe;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+}
+
+details {
+  margin-left: 12px;
+}
+
+summary {
+  cursor: default;
+  padding: 3px 0;
+  overflow-wrap: anywhere;
+}
+
+summary.clickable {
+  cursor: pointer;
+  color: #0f766e;
+  font-weight: 700;
+}
+
+.tabs {
+  border-bottom: 1px solid #e1e6ee;
+  margin: -4px 0 14px;
+  padding-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  background: #eef2f7;
+  color: #18202d;
+}
+
+.tab.active {
+  background: #0f766e;
+  color: #fff;
+}
+
+.tab-page {
+  display: none;
+}
+
+.tab-page.active {
+  display: block;
+}
+
+.manifest-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.manifest-card {
+  border: 1px solid #e1e6ee;
+  border-radius: 8px;
+  padding: 12px;
+  min-height: 120px;
+}
+
+.manifest-card h3 {
+  margin-top: 0;
+}
+
+.manifest-card h3 span {
+  color: #647084;
+  font-weight: 600;
+}
+
+.manifest-card ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.manifest-card li {
+  margin: 6px 0;
+  overflow-wrap: anywhere;
+}
+
+.subpanel {
+  border: 1px solid #e1e6ee;
+  border-radius: 8px;
+  padding: 12px;
+  min-width: 0;
+}
+
+.ai-grid,
+.test-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.short-editor {
+  min-height: 150px;
+  max-height: 220px;
+  margin-bottom: 10px;
+}
+
+.emulator-view {
+  min-height: 360px;
+  border: 1px solid #202b3d;
+  border-radius: 8px;
+  background: #111827;
+  color: #d1d5db;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  text-align: center;
+  padding: 18px;
+}
+
+textarea,
+pre {
+  width: 100%;
+  min-height: 560px;
+  max-height: 620px;
+  overflow: auto;
+  border: 1px solid #d9dee7;
+  border-radius: 8px;
+  padding: 12px;
+  background: #101828;
+  color: #e5e7eb;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre;
+}
+
+textarea {
+  resize: vertical;
+}
+
+#aiContext,
+#aiProposal,
+#runtimeLogs,
+#testStatus {
+  min-height: 170px;
+  max-height: 360px;
 }
 
 .artifacts {
@@ -150,22 +351,13 @@ button:disabled {
   font-weight: 700;
 }
 
-pre {
-  margin: 0;
-  min-height: 260px;
-  max-height: 440px;
-  overflow: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
-  background: #111827;
-  color: #e5e7eb;
-  border-radius: 8px;
-  padding: 14px;
+.empty {
+  color: #647084;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 980px) {
   .topbar,
-  .grid {
+  .workbench {
     display: block;
   }
 
@@ -174,8 +366,15 @@ pre {
     margin-top: 12px;
   }
 
-  .summary {
+  .dashboard,
+  .notes,
+  .manifest-grid,
+  .ai-grid,
+  .test-grid {
     grid-template-columns: 1fr;
   }
-}
 
+  .row {
+    flex-wrap: wrap;
+  }
+}
