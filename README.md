@@ -90,3 +90,5 @@ export PATH=$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/35.0.0:
 ```
 
 Add those lines to `~/.bashrc` once the SDK is installed.
+
+made with love <3
