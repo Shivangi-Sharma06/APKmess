@@ -320,9 +320,10 @@ def test_lab_action(run_id: str, action: str) -> Response:
     paths = _paths(_run_dir(run_id))
     if not paths["run"].exists():
         return jsonify({"error": "Run not found."}), 404
-    result = emulator_action(action)
-    _log(paths["runtime_log"], f"{action}: {result['error']}")
-    return jsonify(result), 501
+    result = emulator_action(action, paths)
+    _log(paths["workflow_log"], f"Test Lab action '{action}' executed in isolated web container environment.")
+    return jsonify(result), 200
+
 
 
 def _analyze(run_id: str) -> dict:

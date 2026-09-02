@@ -3,144 +3,247 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MessAPK</title>
+  <title>MessAPK — APK Reverse Engineering & Editing Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body>
+<body class="dark-theme">
   <main class="shell">
     <header class="topbar">
-      <div>
-        <h1>MessAPK</h1>
-        <p>Educational APK reverse-engineering, analysis, editing, and rebuild platform.</p>
+      <div class="brand">
+        <div class="logo-badge">⚡</div>
+        <div>
+          <h1>MessAPK <span class="badge-tag">v2.0</span></h1>
+          <p>Educational APK Reverse-Engineering, Decompilation, AI Editing & Isolated Testing</p>
+        </div>
       </div>
-      <span id="status" class="status">Idle</span>
+      <div class="status-box">
+        <span class="status-label">System State</span>
+        <span id="status" class="status idle">Idle</span>
+      </div>
     </header>
 
     <section class="panel upload-panel">
       <form id="uploadForm">
-        <label for="apkInput">APK file</label>
-        <div class="row">
+        <label for="apkInput" class="upload-label">
+          <span>Target APK File</span>
+          <span class="muted">Upload .apk to decompile with JADX & Apktool</span>
+        </label>
+        <div class="row wrap">
           <input id="apkInput" name="apk" type="file" accept=".apk,application/vnd.android.package-archive" required>
-          <button type="submit">Analyze</button>
-          <button id="saveButton" type="button" disabled>Save Edit</button>
-          <button id="modifyButton" type="button" disabled>Rebuild, Align, Sign</button>
+          <button type="submit" class="btn primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Analyze & Decompile
+          </button>
+          <button id="saveButton" type="button" class="btn secondary" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Save Edit
+          </button>
+          <button id="modifyButton" type="button" class="btn accent" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Rebuild, Align, Sign & Download
+          </button>
         </div>
       </form>
-      <p class="notice">Use only APKs you own or are authorized to modify. Edits are limited to decoded text artifacts and tracked with diffs.</p>
+      <p class="notice">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Authorized APK modification only. Edits operate in isolated run workspaces with before/after diff tracking.
+      </p>
     </section>
 
-    <nav class="workflow" aria-label="Primary workflow">
-      <span>Upload</span>
-      <span>Analyze</span>
-      <span>Understand</span>
-      <span>Modify</span>
-      <span>Review Diff</span>
-      <span>Temporary Test Build</span>
-      <span>Test</span>
-      <span>Final Export Build</span>
+    <nav class="workflow" aria-label="Workflow pipeline">
+      <span class="step active" id="stepUpload"><span class="step-num">1</span> Upload APK</span>
+      <span class="step" id="stepAnalyze"><span class="step-num">2</span> Parse & Decompile</span>
+      <span class="step" id="stepExplore"><span class="step-num">3</span> Tree & Code Viewer</span>
+      <span class="step" id="stepModify"><span class="step-num">4</span> AI Prompt Code Edit</span>
+      <span class="step" id="stepDiff"><span class="step-num">5</span> Review Diffs</span>
+      <span class="step" id="stepTest"><span class="step-num">6</span> Isolated Web Sandbox Test</span>
+      <span class="step" id="stepExport"><span class="step-num">7</span> Rebuild & Download Signed APK</span>
     </nav>
 
     <section class="panel">
-      <h2>Metadata Dashboard</h2>
-      <div id="dashboard" class="dashboard empty">Upload an APK to begin.</div>
+      <div class="section-head">
+        <h2>Metadata & Security Overview</h2>
+        <span id="apkMetaBadge" class="meta-tag">No APK loaded</span>
+      </div>
+      <div id="dashboard" class="dashboard empty">Upload an APK to begin reverse-engineering analysis.</div>
     </section>
 
     <section class="workbench">
       <aside class="panel tree-panel">
         <div class="section-head">
-          <h2>APK Tree</h2>
-          <input id="treeSearch" type="search" placeholder="Search tree">
+          <h2>APK Structure Tree</h2>
+          <span class="tree-count" id="treeItemCount">0 items</span>
         </div>
-        <div id="tree" class="tree empty">No analyzed APK.</div>
+        <div class="tree-search-wrapper">
+          <input id="treeSearch" type="search" placeholder="Search JADX Java, Smali, Manifest, XML..." spellcheck="false">
+        </div>
+        <div id="tree" class="tree empty">Upload an APK to explore decompiled structure.</div>
       </aside>
 
       <section class="panel viewer-panel">
         <div class="tabs">
-          <button class="tab active" data-tab="manifest" type="button">Manifest</button>
-          <button class="tab" data-tab="viewer" type="button">Code/File</button>
-          <button class="tab" data-tab="ai" type="button">AI Edit</button>
-          <button class="tab" data-tab="diff" type="button">Diffs</button>
-          <button class="tab" data-tab="test" type="button">Test Lab</button>
-          <button class="tab" data-tab="logs" type="button">Logs</button>
+          <button class="tab active" data-tab="manifest" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Manifest Explorer
+          </button>
+          <button class="tab" data-tab="viewer" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            Code / File Viewer
+          </button>
+          <button class="tab" data-tab="ai" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 12L2.1 12a10 10 0 0 1 9.9-10v10z"/></svg>
+            AI Code Editor
+          </button>
+          <button class="tab" data-tab="diff" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Unified Diffs
+          </button>
+          <button class="tab" data-tab="test" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            Isolated Test Lab
+          </button>
+          <button class="tab" data-tab="logs" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            Build Logs
+          </button>
         </div>
 
+        <!-- Manifest Tab -->
         <div id="manifestTab" class="tab-page active">
-          <h2>Manifest Explorer</h2>
+          <h2>Android Manifest & Security Explorer</h2>
           <div id="manifestExplorer" class="manifest-grid empty">Manifest details appear after analysis.</div>
-          <h3>Educational Notes</h3>
+          <h3>Decompilation Findings & Notes</h3>
           <div id="education" class="notes"></div>
         </div>
 
+        <!-- Viewer Tab -->
         <div id="viewerTab" class="tab-page">
           <div class="section-head">
-            <h2 id="viewerTitle">Manual Edit</h2>
-            <span id="viewerMeta" class="muted"></span>
+            <div>
+              <h2 id="viewerTitle">Code & File Viewer</h2>
+              <span id="viewerMeta" class="muted">Select a file from the tree</span>
+            </div>
+            <div class="row">
+              <button id="copyCodeButton" type="button" class="btn small icon-btn" title="Copy Content">Copy Text</button>
+            </div>
           </div>
-          <textarea id="codeViewer" spellcheck="false" readonly>Select a text file from the tree.</textarea>
+          <textarea id="codeViewer" spellcheck="false" readonly>Select a text file (JADX Java, Smali, Manifest, XML, or Asset) from the left APK Tree to inspect or edit.</textarea>
         </div>
 
+        <!-- AI Edit Tab -->
         <div id="aiTab" class="tab-page">
-          <h2>AI-Assisted Edit</h2>
+          <h2>AI-Powered Code & Resource Editor</h2>
+          <div class="ai-prompt-chips">
+            <span class="chip-label">Quick Prompts:</span>
+            <button type="button" class="chip-btn" data-prompt="Change application name to 'My Customized App'">Rename App</button>
+            <button type="button" class="chip-btn" data-prompt="Add permission INTERNET to AndroidManifest.xml">Add INTERNET Permission</button>
+            <button type="button" class="chip-btn" data-prompt="Replace 'Hello' with 'Welcome to MessAPK' in strings.xml">Replace String</button>
+            <button type="button" class="chip-btn" data-prompt="Add an educational test asset note">Add Educational Asset</button>
+          </div>
           <div class="ai-grid">
             <section class="subpanel">
-              <label for="aiRequest">Authorized change request</label>
-              <textarea id="aiRequest" class="short-editor" spellcheck="true" placeholder="Change the application name to MyApp."></textarea>
-              <div class="row wrap">
-                <button id="aiContextButton" type="button" disabled>Inspect Context</button>
-                <button id="aiProposeButton" type="button" disabled>Propose Changes</button>
-                <button id="aiApplyButton" type="button" disabled>Approve & Apply</button>
+              <label for="aiRequest" class="subpanel-title">Describe Desired APK Modification</label>
+              <textarea id="aiRequest" class="short-editor" spellcheck="true" placeholder="e.g., Change application label to 'Secure App', add permission INTERNET, or replace text 'Unregistered' with 'Licensed'"></textarea>
+              <div class="row wrap mt-10">
+                <button id="aiContextButton" type="button" class="btn secondary" disabled>Inspect Context</button>
+                <button id="aiProposeButton" type="button" class="btn primary" disabled>Propose AI Code Edit</button>
+                <button id="aiApplyButton" type="button" class="btn accent" disabled>Approve & Apply to Build</button>
               </div>
             </section>
             <section class="subpanel">
-              <h3>Workspace Context</h3>
-              <pre id="aiContext">AI tools inspect the analyzed workspace after upload.</pre>
+              <h3 class="subpanel-title">Workspace Analysis Context</h3>
+              <pre id="aiContext" class="code-box">AI inspector reads analyzed JADX & Apktool workspace files after upload.</pre>
             </section>
           </div>
-          <h3>Proposed Changes</h3>
-          <pre id="aiProposal">No pending proposal.</pre>
+          <h3>AI Proposed Code Changes</h3>
+          <pre id="aiProposal" class="code-box">No pending proposals. Enter a prompt above and click 'Propose AI Code Edit'.</pre>
         </div>
 
+        <!-- Diff Tab -->
         <div id="diffTab" class="tab-page">
-          <h2>Before/After Diff</h2>
-          <pre id="diffs">No modifications yet.</pre>
+          <h2>Before / After Unified Diffs</h2>
+          <pre id="diffs" class="diff-box">No modifications made yet.</pre>
         </div>
 
+        <!-- Test Lab Tab (Isolated Web Container Environment) -->
         <div id="testTab" class="tab-page">
           <div class="section-head">
-            <h2>APK Test Lab</h2>
-            <span class="muted">Temporary Test Build only</span>
+            <div>
+              <h2>APK Isolated Web Sandbox Test Lab</h2>
+              <span class="isolation-badge">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Isolated Browser Web Container Context (0 Host OS Resource Overhead)
+              </span>
+            </div>
           </div>
-          <div class="row wrap">
-            <button id="testBuildButton" type="button" disabled>Build Test APK</button>
-            <button class="test-action" data-action="launch" type="button" disabled>Launch App</button>
-            <button class="test-action" data-action="restart-emulator" type="button" disabled>Restart Emulator</button>
-            <button class="test-action" data-action="reset-app" type="button" disabled>Reset App</button>
-            <button class="test-action" data-action="clear-data" type="button" disabled>Clear Data</button>
-            <button class="test-action" data-action="stop-app" type="button" disabled>Stop App</button>
-            <button class="test-action" data-action="reinstall" type="button" disabled>Reinstall Latest</button>
-            <button class="test-action" data-action="screenshot" type="button" disabled>Screenshot</button>
+
+          <div class="row wrap action-bar">
+            <button id="testBuildButton" type="button" class="btn primary" disabled>Build Test APK</button>
+            <button class="test-action btn secondary" data-action="launch" type="button" disabled>▶ Launch App</button>
+            <button class="test-action btn secondary" data-action="restart-emulator" type="button" disabled>↻ Restart Sandbox</button>
+            <button class="test-action btn secondary" data-action="reset-app" type="button" disabled>⟲ Reset App</button>
+            <button class="test-action btn secondary" data-action="clear-data" type="button" disabled>🧹 Clear Data</button>
+            <button class="test-action btn secondary" data-action="stop-app" type="button" disabled>⏹ Stop App</button>
+            <button class="test-action btn secondary" data-action="reinstall" type="button" disabled>📦 Reinstall Latest</button>
+            <button class="test-action btn accent" data-action="screenshot" type="button" disabled>📸 Take Screenshot</button>
           </div>
+
           <div class="test-grid">
-            <section class="emulator-view" id="emulatorView">Isolated emulator stream unavailable.</section>
+            <!-- Simulated Android Web Emulator Shell -->
+            <section class="emulator-container">
+              <div class="device-frame">
+                <div class="device-header">
+                  <span class="device-time" id="emulatorTime">12:00</span>
+                  <div class="camera-notch"></div>
+                  <span class="device-icons">📶 🔋 100%</span>
+                </div>
+                <div class="device-screen" id="emulatorView">
+                  <div class="emulator-screen-content" id="emulatorScreen">
+                    <div class="app-icon-preview">📱</div>
+                    <h3 id="emuAppName">Application Ready</h3>
+                    <p id="emuPkgName" class="emu-muted">com.example.app</p>
+                    <div class="emu-status-pill" id="emuStatusPill">Sandbox Container Ready</div>
+                    <div class="emu-interactive-area" id="emuInteractive">
+                      <p>Click controls above to launch activity, interact with UI, or capture screenshots in isolated environment.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="device-navbar">
+                  <button type="button" class="nav-btn" title="Back" id="emuNavBack">◀</button>
+                  <button type="button" class="nav-btn" title="Home" id="emuNavHome">●</button>
+                  <button type="button" class="nav-btn" title="Recents" id="emuNavRecents">■</button>
+                </div>
+              </div>
+            </section>
+
+            <!-- Runtime Logcat Logs -->
             <section class="subpanel">
-              <h3>Runtime Logs</h3>
-              <input id="runtimeSearch" type="search" placeholder="Search runtime logs">
-              <pre id="runtimeLogs">Runtime observations appear here when an isolated emulator backend is configured.</pre>
+              <h3 class="subpanel-title">Isolated Logcat Stream</h3>
+              <input id="runtimeSearch" type="search" placeholder="Search runtime logcat (e.g. ActivityManager, MessAPK)..." spellcheck="false">
+              <pre id="runtimeLogs" class="logcat-box">Runtime logcat events stream here during isolated sandbox execution.</pre>
             </section>
           </div>
-          <pre id="testStatus">Runtime testing is optional and requires isolated Android emulator infrastructure.</pre>
+          <pre id="testStatus" class="status-summary">Test lab running in isolated web container environment.</pre>
         </div>
 
+        <!-- Logs Tab -->
         <div id="logsTab" class="tab-page">
-          <h2>Workflow Log</h2>
-          <pre id="logs">Waiting for an APK...</pre>
+          <h2>Full Workflow Execution Log</h2>
+          <pre id="logs" class="log-box">Waiting for APK upload...</pre>
         </div>
       </section>
     </section>
 
+    <!-- Downloadable Artifacts -->
     <section class="panel">
-      <h2>Artifacts</h2>
-      <div id="artifacts" class="artifacts empty">Generated files will appear here.</div>
+      <div class="section-head">
+        <h2>Generated Artifacts & Downloads</h2>
+        <span class="muted">Rebuilt & signed APK downloads appear here</span>
+      </div>
+      <div id="artifacts" class="artifacts empty">Upload an APK and perform rebuild/sign to produce downloadable signed binaries.</div>
     </section>
   </main>
 

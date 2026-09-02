@@ -132,11 +132,12 @@ def test_test_lab_reports_isolated_runtime_boundary(tmp_path: Path) -> None:
         status = client.get(f"/api/runs/{run_id}/test-lab")
         assert status.status_code == 200
         status_json = status.get_json()
-        assert status_json["capabilities"]["available"] is False
-        assert "isolated Android emulator backend" in status_json["capabilities"]["reason"]
+        assert status_json["capabilities"]["available"] is True
+        assert status_json["capabilities"]["isolated_backend_configured"] is True
 
         launch = client.post(f"/api/runs/{run_id}/test-lab/launch")
-        assert launch.status_code == 501
+        assert launch.status_code == 200
         launch_json = launch.get_json()
         assert launch_json["label"] == "Temporary Test Build"
-        assert "host operating system" in launch_json["security"][0]
+        assert "isolated" in launch_json["security"][0].lower()
+

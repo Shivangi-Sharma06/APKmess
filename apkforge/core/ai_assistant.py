@@ -61,32 +61,48 @@ def propose_authorized_change(request_text: str, paths: dict[str, Path], report:
 
     observations = inspect_workspace(paths, report, request_text)
     lower = request_text.lower()
-    if "app name" in lower or "application name" in lower or "label" in lower:
-        proposed = _propose_app_label(request_text, workspace)
-    elif "educational" in lower and ("screen" in lower or "activity" in lower):
-        proposed = _propose_educational_asset(workspace)
-    elif "debug logging" in lower or "add logging" in lower:
-        proposed = _propose_debug_marker(workspace)
-    elif "explain" in lower:
+    proposed_list: list[ProposedChange] = []
+
+    if "permission" in lower:
+        perm_change = _propose_permission_addition(request_text, workspace)
+        if perm_change:
+            proposed_list.append(perm_change)
+
+    if ("replace" in lower or "change" in lower) and ("with" in lower or "to" in lower) and not proposed_list:
+        rep_changes = _propose_string_replacement(request_text, workspace)
+        if rep_changes:
+            proposed_list.extend(rep_changes)
+
+    if not proposed_list and ("app name" in lower or "application name" in lower or "label" in lower):
+        app_label_change = _propose_app_label(request_text, workspace)
+        if app_label_change:
+            proposed_list.append(app_label_change)
+
+    if not proposed_list and ("educational" in lower and ("screen" in lower or "activity" in lower)):
+        proposed_list.append(_propose_educational_asset(workspace))
+
+    if not proposed_list and ("debug logging" in lower or "add logging" in lower):
+        proposed_list.append(_propose_debug_marker(workspace))
+
+    if not proposed_list and "explain" in lower:
         response = _explain_request(request_text, report)
         response["observations"] = observations
         return response
-    else:
-        proposed = _propose_text_note(workspace, request_text)
 
-    if not proposed:
-        return {
-            "ok": False,
-            "error": "No safe computable change could be identified. Try changing the app label, adding an educational test note, or adding a debug marker.",
-        }
+    if not proposed_list:
+        proposed_list.append(_propose_text_note(workspace, request_text))
+
+    changes_dict = [p.as_dict(include_content=True) for p in proposed_list]
+    summary = "; ".join([p.explanation for p in proposed_list])
 
     return {
         "ok": True,
-        "summary": proposed.explanation,
+        "summary": summary,
         "observations": observations,
         "requires_approval": True,
-        "changes": [proposed.as_dict(include_content=True)],
+        "changes": changes_dict,
     }
+
 
 
 def apply_proposal(proposal: dict, paths: dict[str, Path]) -> dict:
@@ -229,6 +245,57 @@ def _metadata_modifications(paths: dict[str, Path]) -> list[dict]:
         return json.loads(metadata.read_text(encoding="utf-8")).get("modifications", [])
     except (OSError, ValueError):
         return []
+
+
+def _propose_permission_addition(request_text: str, decoded: Path) -> ProposedChange | None:
+    manifest = decoded / "AndroidManifest.xml"
+    if not manifest.exists():
+        return None
+    before = manifest.read_text(encoding="utf-8", errors="ignore")
+    match = re.search(r"\b(android\.permission\.[A-Z0-9_]+|[A-Z0-9_]{3,})\b", request_text)
+    if not match:
+        return None
+    perm_name = match.group(1)
+    if not perm_name.startswith("android.permission."):
+        perm_name = f"android.permission.{perm_name}"
+
+    if perm_name in before:
+        return None
+
+    perm_tag = f'    <uses-permission android:name="{perm_name}"/>\n'
+    if "<application" in before:
+        after = before.replace("<application", f"{perm_tag}<application", 1)
+    else:
+        after = before + f"\n{perm_tag}"
+
+    return ProposedChange("modify_file", "decoded/AndroidManifest.xml", before, after, f"Add permission {perm_name} to AndroidManifest.xml.")
+
+
+def _propose_string_replacement(request_text: str, decoded: Path) -> list[ProposedChange]:
+    match = re.search(r'(?:replace|change)\s+["\']?([^"\'\n]+?)["\']?\s+(?:with|to)\s+["\']?([^"\'\n]+?)["\']?(?:\s+in\s+.*)?$', request_text, re.IGNORECASE)
+    if not match:
+        return []
+    target_str, new_str = match.group(1).strip(), match.group(2).strip()
+    if not target_str or target_str == new_str:
+        return []
+
+    proposals = []
+    for path in decoded.rglob("*"):
+        if len(proposals) >= 3:
+            break
+        if not path.is_file() or path.stat().st_size > 500_000:
+            continue
+        if path.suffix.lower() not in {".xml", ".smali", ".txt", ".json", ".properties"}:
+            continue
+        try:
+            content = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        if target_str in content:
+            after = content.replace(target_str, new_str)
+            rel = f"decoded/{path.relative_to(decoded).as_posix()}"
+            proposals.append(ProposedChange("modify_file", rel, content, after, f"Replace '{target_str}' with '{new_str}' in {path.name}."))
+    return proposals
 
 
 def _propose_app_label(request_text: str, decoded: Path) -> ProposedChange | None:
